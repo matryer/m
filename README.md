@@ -5,7 +5,7 @@ Map utilities for Go
 
 ### `Get` and `Set` using JavaScript notation
 
-Before:
+Before (yeah it scrolls):
 
 ```
 city := data.(map[string]interface{})["addresses"].([]interface{})[0].(map[string]interface{})["city"]
