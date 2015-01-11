@@ -8,6 +8,9 @@ Map utilities for Go
 Before (yeah it scrolls):
 
 ```
+// set the city
+data.(map[string]interface{})["addresses"].([]interface{})[0].(map[string]interface{})["city"] = "London"
+// get the city
 city := data.(map[string]interface{})["addresses"].([]interface{})[0].(map[string]interface{})["city"]
 ```
 
@@ -16,6 +19,7 @@ city := data.(map[string]interface{})["addresses"].([]interface{})[0].(map[strin
 After:
 
 ```
+m.Set(data, "addresses[0].city", "London")
 city := m.Get(data, "addresses[0].city")
 ```
 
