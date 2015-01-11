@@ -19,6 +19,7 @@ var closingBracket = "]"[0]
 //     key
 //     key.subkey
 //     key[i].subkey
+//     key[i].subkey.subkey2.forever...
 func Get(m map[string]interface{}, keypath string) interface{} {
 	value, _ := GetOK(m, keypath)
 	return value
