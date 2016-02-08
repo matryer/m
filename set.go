@@ -8,6 +8,8 @@ import (
 
 // Set sets the value in the map at the given keypath.
 // For more information on supported keypaths, see Get.
+// If an expected object is missing, a map[string]interface{}
+// will be created and assigned to the appropriate key.
 func Set(m map[string]interface{}, keypath string, value interface{}) {
 	setOK(m, strings.Split(keypath, dot), value)
 }
@@ -20,15 +22,21 @@ func SetOK(m map[string]interface{}, keypath string, value interface{}) bool {
 }
 
 func setOK(m map[string]interface{}, keys []string, value interface{}) bool {
+	if m == nil {
+		return false
+	}
 	k := keys[0]
 	if len(keys) > 1 {
 		var sub interface{}
 		var ok bool
 		if sub, ok = get(m, k); !ok {
-			return false
+			// sub object is nil - create it
+			sub = make(map[string]interface{})
+			m[k] = sub
 		}
 		var submap map[string]interface{}
 		if submap, ok = sub.(map[string]interface{}); !ok {
+			// not a map, so we can't set it
 			return false
 		}
 		return setOK(submap, keys[1:], value)

@@ -72,6 +72,12 @@ var setTests = []struct {
 		"San Francisco Town",
 		map[string]interface{}{"places": []interface{}{map[string]interface{}{"city": "London"}, map[string]interface{}{"city": "San Francisco Town"}}},
 		true,
+	}, {
+		map[string]interface{}{},
+		"person.name",
+		"David",
+		map[string]interface{}{"person": map[string]interface{}{"name": "David"}},
+		true,
 	},
 }
 
