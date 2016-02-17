@@ -58,6 +58,7 @@ func set(m map[string]interface{}, k string, value interface{}) bool {
 		if !ok {
 			return false
 		}
+		// NOTE: this could panic, it cannot grow arrays
 		reflect.ValueOf(sub).Index(int(i)).Set(reflect.ValueOf(value))
 		return true
 	}

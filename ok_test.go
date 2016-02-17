@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/cheekybits/is"
-	"github.com/cheekybits/m"
+	"github.com/matryer/m"
 )
 
 func TestHas(t *testing.T) {

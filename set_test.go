@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/cheekybits/is"
-	"github.com/cheekybits/m"
+	"github.com/matryer/m"
 )
 
 var setTests = []struct {

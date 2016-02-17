@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/cheekybits/m?status.png)](http://godoc.org/github.com/cheekybits/m)
+[![GoDoc](https://godoc.org/github.com/matryer/m?status.png)](http://godoc.org/github.com/matryer/m)
 
 # m
 Map utilities for Go
@@ -24,4 +24,4 @@ city := m.Get(data, "addresses[0].city")
 ```
 
   * Returns nil if any piece is missing or wrong type
-  * Use [`GetOK`](http://godoc.org/github.com/cheekybits/m#GetOK) for a second argument bool
+  * Use [`GetOK`](http://godoc.org/github.com/matryer/m#GetOK) for a second argument bool
