@@ -71,6 +71,11 @@ var getTests = []struct {
 		true,
 	}, {
 		map[string]interface{}{"places": []interface{}{map[string]interface{}{"city": "London"}, map[string]interface{}{"city": "San Francisco"}}},
+		"places[2]",
+		nil,
+		false,
+	}, {
+		map[string]interface{}{"places": []interface{}{map[string]interface{}{"city": "London"}, map[string]interface{}{"city": "San Francisco"}}},
 		"places[1].city",
 		"San Francisco",
 		true,

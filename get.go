@@ -69,7 +69,11 @@ func get(m map[string]interface{}, k string) (interface{}, bool) {
 		if !ok {
 			return nil, false
 		}
-		return reflect.ValueOf(sub).Index(int(i)).Interface(), true
+		val := reflect.ValueOf(sub)
+		if val.Len() <= int(i) {
+			return nil, false
+		}
+		return val.Index(int(i)).Interface(), true
 	}
 	v, ok := m[k]
 	return v, ok
