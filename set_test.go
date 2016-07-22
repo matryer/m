@@ -105,6 +105,12 @@ var setTests = []struct {
 		nil,
 		nil,
 		false,
+	}, {
+		mapType{"name": "Tylor"},
+		"name",
+		"Ryon",
+		mapType{"name": "Ryon"},
+		true,
 	},
 }
 

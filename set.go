@@ -39,20 +39,6 @@ func setOK(m interface{}, keys []string, value interface{}) bool {
 			if !set(m, k, sub) {
 				return false
 			}
-			// if k[len(k)-1] == closingBracket {
-
-			// } else {
-			// 	// sub object is nil - create it
-
-			// 	if data, ok := m.(map[string]interface{}); ok {
-			// 		if data == nil {
-			// 			return false
-			// 		}
-			// 		data[k] = sub
-			// 	} else {
-			// 		return false
-			// 	}
-			// }
 		}
 		switch sub.(type) {
 		case map[string]interface{}, []map[string]interface{}:
@@ -88,8 +74,10 @@ func set(m interface{}, k string, value interface{}) bool {
 		return true
 	}
 
-	if data, ok := m.(map[string]interface{}); ok {
-		data[k] = value
+	mapType := reflect.TypeOf(map[string]interface{}(nil))
+	if reflect.TypeOf(m).ConvertibleTo(mapType) {
+		val := reflect.ValueOf(m).Convert(mapType)
+		val.Interface().(map[string]interface{})[k] = value
 		return true
 	}
 

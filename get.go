@@ -74,6 +74,10 @@ func parseArrayPath(k string) ([]string, int) {
 // get gets the key from the map.
 // Supports array notation for slices.
 func get(m interface{}, k string) (interface{}, bool) {
+	if m == nil {
+		return nil, false
+	}
+
 	if k == "" {
 		return m, true
 	}
@@ -94,8 +98,10 @@ func get(m interface{}, k string) (interface{}, bool) {
 		return val.Index(int(i)).Interface(), true
 	}
 
-	if data, ok := m.(map[string]interface{}); ok {
-		v, ok := data[k]
+	mapType := reflect.TypeOf(map[string]interface{}(nil))
+	if reflect.TypeOf(m).ConvertibleTo(mapType) {
+		val := reflect.ValueOf(m).Convert(mapType)
+		v, ok := val.Interface().(map[string]interface{})[k]
 		return v, ok
 	}
 
