@@ -8,10 +8,10 @@ import (
 )
 
 var setTests = []struct {
-	M  map[string]interface{}
+	M  interface{}
 	K  string
 	V  interface{}
-	X  map[string]interface{}
+	X  interface{}
 	OK bool
 }{
 	{
@@ -78,6 +78,33 @@ var setTests = []struct {
 		"David",
 		map[string]interface{}{"person": map[string]interface{}{"name": "David"}},
 		true,
+	},
+	{
+		[]interface{}{
+			map[string]interface{}{
+				"city": "London",
+			},
+			map[string]interface{}{
+				"city": "San Francisco",
+			},
+		},
+		"[1].city",
+		"San Francisco Town",
+		[]interface{}{
+			map[string]interface{}{
+				"city": "London",
+			},
+			map[string]interface{}{
+				"city": "San Francisco Town",
+			},
+		},
+		true,
+	}, {
+		nil,
+		"[0].postcode.inner",
+		nil,
+		nil,
+		false,
 	},
 }
 

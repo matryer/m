@@ -2,7 +2,6 @@ package m
 
 import (
 	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -10,18 +9,18 @@ import (
 // For more information on supported keypaths, see Get.
 // If an expected object is missing, a map[string]interface{}
 // will be created and assigned to the appropriate key.
-func Set(m map[string]interface{}, keypath string, value interface{}) {
+func Set(m interface{}, keypath string, value interface{}) {
 	setOK(m, strings.Split(keypath, dot), value)
 }
 
 // SetOK sets the value from the map by the given dot-notation
 // keypath, or returns false if any of the data is missing.
 // For more information on supported keypaths, see Get.
-func SetOK(m map[string]interface{}, keypath string, value interface{}) bool {
+func SetOK(m interface{}, keypath string, value interface{}) bool {
 	return setOK(m, strings.Split(keypath, dot), value)
 }
 
-func setOK(m map[string]interface{}, keys []string, value interface{}) bool {
+func setOK(m interface{}, keys []string, value interface{}) bool {
 	if m == nil {
 		return false
 	}
@@ -30,39 +29,69 @@ func setOK(m map[string]interface{}, keys []string, value interface{}) bool {
 		var sub interface{}
 		var ok bool
 		if sub, ok = get(m, k); !ok {
-			// sub object is nil - create it
-			sub = make(map[string]interface{})
-			m[k] = sub
+			// Make sure it is an array index
+			nextKey := keys[1]
+			if nextKey[len(nextKey)-1] == closingBracket {
+				sub = make([]map[string]interface{}, 0)
+			} else {
+				sub = make(map[string]interface{})
+			}
+			if !set(m, k, sub) {
+				return false
+			}
+			// if k[len(k)-1] == closingBracket {
+
+			// } else {
+			// 	// sub object is nil - create it
+
+			// 	if data, ok := m.(map[string]interface{}); ok {
+			// 		if data == nil {
+			// 			return false
+			// 		}
+			// 		data[k] = sub
+			// 	} else {
+			// 		return false
+			// 	}
+			// }
 		}
-		var submap map[string]interface{}
-		if submap, ok = sub.(map[string]interface{}); !ok {
-			// not a map, so we can't set it
-			return false
+		switch sub.(type) {
+		case map[string]interface{}, []map[string]interface{}:
+			return setOK(sub, keys[1:], value)
 		}
-		return setOK(submap, keys[1:], value)
+
+		return false
 	}
 	return set(m, k, value)
 }
 
 // set sets the value to the key.
 // Supports array setting: arr[2]=val.
-func set(m map[string]interface{}, k string, value interface{}) bool {
+func set(m interface{}, k string, value interface{}) bool {
 
 	if k[len(k)-1] == closingBracket {
-		segs := strings.Split(k, openingBracket)
-		i, err := strconv.ParseInt(segs[1][0:len(segs[1])-1], 10, 64)
-		if err != nil {
+		segs, i := parseArrayPath(k)
+		if i == -1 {
 			return false
 		}
 		sub, ok := get(m, segs[0])
 		if !ok {
 			return false
 		}
-		// NOTE: this could panic, it cannot grow arrays
-		reflect.ValueOf(sub).Index(int(i)).Set(reflect.ValueOf(value))
+
+		// Grow array by 1, and don't panic
+		val := reflect.ValueOf(sub)
+		if val.Len() <= i {
+			return false
+		}
+
+		val.Index(i).Set(reflect.ValueOf(value))
 		return true
 	}
 
-	m[k] = value
-	return true
+	if data, ok := m.(map[string]interface{}); ok {
+		data[k] = value
+		return true
+	}
+
+	return false
 }
