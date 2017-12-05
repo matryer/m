@@ -7,8 +7,10 @@ import (
 	"github.com/matryer/m"
 )
 
+type mapType map[string]interface{}
+
 var getTests = []struct {
-	M  map[string]interface{}
+	M  interface{}
 	K  string
 	V  interface{}
 	OK bool
@@ -78,6 +80,42 @@ var getTests = []struct {
 		map[string]interface{}{"places": []interface{}{map[string]interface{}{"city": "London"}, map[string]interface{}{"city": "San Francisco"}}},
 		"places[1].city",
 		"San Francisco",
+		true,
+	}, {
+		[]map[string]interface{}{{"city": "London"}, {"city": "San Francisco"}},
+		"[1].city",
+		"San Francisco",
+		true,
+	}, {
+		[]map[string]interface{}{{"city": "London"}, map[string]interface{}{"city": "San Francisco"}},
+		"places[1].city",
+		nil,
+		false,
+	}, {
+		[]map[string]interface{}{{"city": "London"}, map[string]interface{}{"city": "San Francisco"}},
+		"1].city",
+		nil,
+		false,
+	}, {
+		[]map[string]interface{}{
+			{
+				"address": []map[string]interface{}{
+					{
+						"postcode": map[string]interface{}{
+							"inner": "NG19",
+						},
+					},
+				},
+			},
+		},
+		"[0].address[0].postcode.inner",
+		"NG19",
+		true,
+	},
+	{
+		mapType{"name": "Tylor"},
+		"name",
+		"Tylor",
 		true,
 	},
 }

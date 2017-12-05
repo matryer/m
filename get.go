@@ -20,7 +20,7 @@ var closingBracket = "]"[0]
 //     key.subkey
 //     key[i].subkey
 //     key[i].subkey.subkey2.forever...
-func Get(m map[string]interface{}, keypath string) interface{} {
+func Get(m interface{}, keypath string) interface{} {
 	value, _ := GetOK(m, keypath)
 	return value
 }
@@ -29,13 +29,13 @@ func Get(m map[string]interface{}, keypath string) interface{} {
 // keypath, or returns the second argument false if any of the data
 // is missing.
 // For more information on supported keypaths, see Get.
-func GetOK(m map[string]interface{}, keypath string) (interface{}, bool) {
+func GetOK(m interface{}, keypath string) (interface{}, bool) {
 	return getOK(m, strings.Split(keypath, dot))
 }
 
 // getOK gets the value specified by the keys array from the
 // map.
-func getOK(m map[string]interface{}, keys []string) (interface{}, bool) {
+func getOK(m interface{}, keys []string) (interface{}, bool) {
 	k := keys[0]
 	if len(keys) > 1 {
 		var sub interface{}
@@ -43,11 +43,12 @@ func getOK(m map[string]interface{}, keys []string) (interface{}, bool) {
 		if sub, ok = get(m, k); !ok {
 			return nil, false
 		}
-		var submap map[string]interface{}
-		if submap, ok = sub.(map[string]interface{}); !ok {
-			return nil, false
+
+		switch sub.(type) {
+		case map[string]interface{}, []map[string]interface{}:
+			return getOK(sub, keys[1:])
 		}
-		return getOK(submap, keys[1:])
+		return nil, false
 	}
 	value, ok := get(m, k)
 	if value == nil {
@@ -56,13 +57,34 @@ func getOK(m map[string]interface{}, keys []string) (interface{}, bool) {
 	return value, ok
 }
 
+func parseArrayPath(k string) ([]string, int) {
+	segs := strings.Split(k, openingBracket)
+	if len(segs) == 1 {
+		return segs, -1
+	}
+
+	i, err := strconv.ParseInt(segs[1][0:len(segs[1])-1], 10, 64)
+	if err != nil {
+		return segs, -1
+	}
+
+	return segs, int(i)
+}
+
 // get gets the key from the map.
 // Supports array notation for slices.
-func get(m map[string]interface{}, k string) (interface{}, bool) {
+func get(m interface{}, k string) (interface{}, bool) {
+	if m == nil {
+		return nil, false
+	}
+
+	if k == "" {
+		return m, true
+	}
+
 	if k[len(k)-1] == closingBracket {
-		segs := strings.Split(k, openingBracket)
-		i, err := strconv.ParseInt(segs[1][0:len(segs[1])-1], 10, 64)
-		if err != nil {
+		segs, i := parseArrayPath(k)
+		if i == -1 {
 			return nil, false
 		}
 		sub, ok := get(m, segs[0])
@@ -70,11 +92,18 @@ func get(m map[string]interface{}, k string) (interface{}, bool) {
 			return nil, false
 		}
 		val := reflect.ValueOf(sub)
-		if val.Len() <= int(i) {
+		if val.Len() <= i || (val.Kind() != reflect.Slice && val.Kind() != reflect.Array) {
 			return nil, false
 		}
 		return val.Index(int(i)).Interface(), true
 	}
-	v, ok := m[k]
-	return v, ok
+
+	mapType := reflect.TypeOf(map[string]interface{}(nil))
+	if reflect.TypeOf(m).ConvertibleTo(mapType) {
+		val := reflect.ValueOf(m).Convert(mapType)
+		v, ok := val.Interface().(map[string]interface{})[k]
+		return v, ok
+	}
+
+	return nil, false
 }
