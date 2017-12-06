@@ -106,10 +106,10 @@ var setTests = []struct {
 		nil,
 		false,
 	}, {
-		mapType{"name": "Tylor"},
+		map[string]interface{}{"name": "Tylor"},
 		"name",
 		"Ryon",
-		mapType{"name": "Ryon"},
+		map[string]interface{}{"name": "Ryon"},
 		true,
 	},
 }

@@ -92,6 +92,9 @@ func get(m interface{}, k string) (interface{}, bool) {
 			return nil, false
 		}
 		val := reflect.ValueOf(sub)
+		if !val.IsValid() {
+			return nil, false
+		}
 		if val.Len() <= i || (val.Kind() != reflect.Slice && val.Kind() != reflect.Array) {
 			return nil, false
 		}

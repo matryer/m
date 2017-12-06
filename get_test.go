@@ -7,8 +7,6 @@ import (
 	"github.com/matryer/m"
 )
 
-type mapType map[string]interface{}
-
 var getTests = []struct {
 	M  interface{}
 	K  string
@@ -113,10 +111,16 @@ var getTests = []struct {
 		true,
 	},
 	{
-		mapType{"name": "Tylor"},
+		map[string]interface{}{"name": "Tylor"},
 		"name",
 		"Tylor",
 		true,
+	},
+	{
+		map[string]interface{}{"items": nil},
+		"items[0].something",
+		nil,
+		false,
 	},
 }
 
